@@ -1,6 +1,10 @@
 # parcial2-ds
 Proyecto para la materia Diseño de Sistemas
 
+Integrantes: Ariel Jorge Lescano
+
+github link: https://github.com/ArielL777/parcial2-ds/tree/dev
+
 # Proyecto Sistema de Excusas - Parcial 2
 
 Este proyecto implementa un sistema para la gestión de excusas utilizando Spring Boot.
