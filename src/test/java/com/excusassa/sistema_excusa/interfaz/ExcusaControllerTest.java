@@ -3,6 +3,7 @@ package com.excusassa.sistema_excusa.interfaz;
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.Excusa;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.enums.TipoExcusa;
+import com.excusassa.sistema_excusa.infraestructura.excepciones.RecursoNoEncontradoException;
 import com.excusassa.sistema_excusa.interfaz.dto.ExcusaRequestDTO;
 import com.excusassa.sistema_excusa.servicios.excusa.ExcusaService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,14 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,6 +35,8 @@ class ExcusaControllerTest {
 
     @MockBean
     private ExcusaService excusaService;
+
+
 
     @Test
     void alPresentarUnaExcusaValida_deberiaDevolverElObjetoExcusaConStatusOk() throws Exception {
@@ -58,26 +59,57 @@ class ExcusaControllerTest {
     void alPresentarExcusa_cuandoServicioLanzaExcepcion_deberiaDevolverBadRequest() throws Exception {
         ExcusaRequestDTO excusaRequest = new ExcusaRequestDTO("Motivo inválido", "Descripción", 9999);
         String excusaJson = objectMapper.writeValueAsString(excusaRequest);
+        String mensajeError = "El motivo y el legajo del empleado son obligatorios.";
 
         when(excusaService.crearYProcesarExcusa(any(ExcusaRequestDTO.class)))
-                .thenThrow(new IllegalArgumentException("El motivo y el legajo del empleado son obligatorios."));
+                .thenThrow(new IllegalArgumentException(mensajeError));
 
         mockMvc.perform(post("/api/excusas/presentar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(excusaJson))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("El motivo y el legajo del empleado son obligatorios."));
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.error", is(mensajeError)));
+    }
+
+    @Test
+    void alPresentarExcusaConEmpleadoInexistente_deberiaDevolverError404() throws Exception {
+        ExcusaRequestDTO excusaRequest = new ExcusaRequestDTO("Un motivo cualquiera", "Descripción", 9999);
+        String excusaJson = objectMapper.writeValueAsString(excusaRequest);
+        String mensajeError = "Empleado no encontrado con legajo: 9999";
+
+        when(excusaService.crearYProcesarExcusa(any(ExcusaRequestDTO.class)))
+                .thenThrow(new RecursoNoEncontradoException(mensajeError));
+
+        mockMvc.perform(post("/api/excusas/presentar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(excusaJson))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is(404)))
+                .andExpect(jsonPath("$.error", is(mensajeError)));
+    }
+
+    @Test
+    void alPresentarExcusaConDatosInvalidos_deberiaDevolverError400ConDetalles() throws Exception {
+
+        ExcusaRequestDTO excusaInvalida = new ExcusaRequestDTO("", "Descripción válida", 1001);
+        String excusaJson = objectMapper.writeValueAsString(excusaInvalida);
+
+        mockMvc.perform(post("/api/excusas/presentar")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(excusaJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.errors.motivo", containsString("El motivo no puede estar vacío.")))
+                .andExpect(jsonPath("$.errors.motivo", containsString("El motivo debe tener al menos 5 caracteres.")));
     }
 
     @Test
     void alPedirTodasLasExcusas_deberiaDevolverListaConExcusas() throws Exception {
-
         Empleado empleadoFalso = new Empleado("Test", "test@test.com", 1001);
-
         List<Excusa> listaFalsa = List.of(new Excusa(TipoExcusa.CORTE_LUZ, "Sin luz", empleadoFalso));
 
         when(excusaService.obtenerTodas()).thenReturn(listaFalsa);
-
 
         mockMvc.perform(get("/api/excusas"))
                 .andExpect(status().isOk())

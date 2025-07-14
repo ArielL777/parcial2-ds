@@ -3,9 +3,8 @@ package com.excusassa.sistema_excusa.interfaz;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.Excusa;
 import com.excusassa.sistema_excusa.infraestructura.excepciones.RecursoNoEncontradoException;
 import com.excusassa.sistema_excusa.interfaz.dto.ExcusaRequestDTO;
-import com.excusassa.sistema_excusa.servicios.empleado.EmpleadoService;
 import com.excusassa.sistema_excusa.servicios.excusa.ExcusaService;
-import org.apache.coyote.BadRequestException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,19 +18,13 @@ public class ExcusaController {
 
     @Autowired
     private ExcusaService excusaService;
-    @Autowired
-    private EmpleadoService empleadoService;
+
+    public ExcusaController() {}
 
     @PostMapping("/presentar")
-    public ResponseEntity<?> presentarExcusa(@RequestBody ExcusaRequestDTO excusaDTO) {
-        try {
-            Excusa excusaProcesada = excusaService.crearYProcesarExcusa(excusaDTO);
-            return ResponseEntity.ok(excusaProcesada);
-        } catch (BadRequestException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RecursoNoEncontradoException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<Excusa> presentarExcusa(@Valid @RequestBody ExcusaRequestDTO excusaDTO) {
+        Excusa excusaProcesada = excusaService.crearYProcesarExcusa(excusaDTO);
+        return ResponseEntity.ok(excusaProcesada);
     }
 
     @GetMapping

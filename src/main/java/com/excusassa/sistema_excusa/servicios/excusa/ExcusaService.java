@@ -31,9 +31,9 @@ public class ExcusaService {
         this.excusaRepository = excusaRepository;
     }
 
-    public Excusa crearYProcesarExcusa(ExcusaRequestDTO dto) throws BadRequestException {
+    public Excusa crearYProcesarExcusa(ExcusaRequestDTO dto) {
         if (dto.motivo() == null || dto.motivo().isEmpty() || dto.legajoEmpleado() == null) {
-            throw new BadRequestException("El motivo y el legajo del empleado son obligatorios.");
+            throw new IllegalArgumentException("El motivo y el legajo del empleado son obligatorios.");
         }
 
         Empleado empleado = empleadoRepository.findById(dto.legajoEmpleado())
