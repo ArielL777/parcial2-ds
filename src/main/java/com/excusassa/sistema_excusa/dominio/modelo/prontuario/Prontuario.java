@@ -1,36 +1,40 @@
 package com.excusassa.sistema_excusa.dominio.modelo.prontuario;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
-import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Entity
+@Table(name = "prontuarios")
+@Data
+@NoArgsConstructor
 public class Prontuario {
-    private final Empleado empleado;
-    private final IExcusa excusa;
-    private final int nroLegajo;
-    private final Date fecha;
 
-    public Prontuario(Empleado empleado, IExcusa excusa, int nroLegajo, Date fecha) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "empleado_id", nullable = false)
+    private Empleado empleado;
+
+    @Column(nullable = false)
+    private String motivoExcusa;
+
+    @Column(nullable = false)
+    private int nroLegajo;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date fecha;
+
+    public Prontuario(Empleado empleado, String motivoExcusa, int nroLegajo, Date fecha) {
         this.empleado = empleado;
-        this.excusa = excusa;
+        this.motivoExcusa = motivoExcusa;
         this.nroLegajo = nroLegajo;
         this.fecha = fecha;
-    }
-
-    public Empleado getEmpleado() {
-        return empleado;
-    }
-
-    public IExcusa getExcusa() {
-        return excusa;
-    }
-
-    public int getNroLegajo() {
-        return nroLegajo;
-    }
-
-    public Date getFecha() {
-        return fecha;
     }
 }

@@ -1,7 +1,8 @@
 package com.excusassa.sistema_excusa.servicios.excusa;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
-import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
+import com.excusassa.sistema_excusa.dominio.modelo.excusa.Excusa;
+import com.excusassa.sistema_excusa.dominio.modelo.excusa.ExcusaFactory;
 import com.excusassa.sistema_excusa.infraestructura.excepciones.RecursoNoEncontradoException;
 import com.excusassa.sistema_excusa.infraestructura.persistencia.EmpleadoRepository;
 import com.excusassa.sistema_excusa.interfaz.dto.ExcusaRequestDTO;
@@ -30,7 +31,7 @@ public class ExcusaService {
         this.excusaRepository = excusaRepository;
     }
 
-    public IExcusa crearYProcesarExcusa(ExcusaRequestDTO dto) throws BadRequestException {
+    public Excusa crearYProcesarExcusa(ExcusaRequestDTO dto) throws BadRequestException {
         if (dto.motivo() == null || dto.motivo().isEmpty() || dto.legajoEmpleado() == null) {
             throw new BadRequestException("El motivo y el legajo del empleado son obligatorios.");
         }
@@ -38,17 +39,17 @@ public class ExcusaService {
         Empleado empleado = empleadoRepository.findById(dto.legajoEmpleado())
                 .orElseThrow(() -> new RecursoNoEncontradoException("Empleado no encontrado con legajo: " + dto.legajoEmpleado()));
 
-        IExcusa excusa = excusaFactory.crear(dto.motivo(), dto.descripcion(), empleado);
+        Excusa excusa = excusaFactory.crear(dto.motivo(), dto.descripcion(), empleado);
         cadenaEncargados.procesarExcusa(excusa);
         return excusa;
     }
 
-    public List<IExcusa> obtenerTodas() {
+    public List<Excusa> obtenerTodas() {
         return excusaRepository.findAll();
     }
 
-    public List<IExcusa> obtenerPorLegajo(Integer legajo) {
-        return excusaRepository.findByLegajoEmpleado(legajo);
+    public List<Excusa> obtenerPorLegajo(Integer legajo) {
+        return excusaRepository.findByEmpleadoNroLegajo(legajo);
     }
 
 }

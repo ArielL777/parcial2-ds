@@ -1,8 +1,8 @@
 package com.excusassa.sistema_excusa.servicios.encargado;
 
-import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
+import com.excusassa.sistema_excusa.dominio.modelo.excusa.Excusa;
 
 public interface IEncargado {
-    void manejarExcusa(IExcusa excusa);
+    void manejarExcusa(Excusa excusa);
     void setSiguiente(IEncargado siguiente);
 }

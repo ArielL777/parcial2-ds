@@ -1,9 +1,17 @@
 package com.excusassa.sistema_excusa.dominio.modelo.empleado;
 
+import com.excusassa.sistema_excusa.dominio.modelo.prontuario.Prontuario;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
+@Table(name = "empleados")
+@Data
+@NoArgsConstructor
 public class Empleado {
-    protected String nombre;
-    protected String email;
-    protected int nroLegajo;
 
     public Empleado(String nombre, String email, int nroLegajo) {
         this.nombre = nombre;
@@ -11,15 +19,20 @@ public class Empleado {
         this.nroLegajo = nroLegajo;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public String getEmail() {
-        return email;
-    }
+    @Column(nullable = false)
+    private String nombre;
 
-    public int getNroLegajo() {
-        return nroLegajo;
-    }
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false, unique = true)
+    private int nroLegajo;
+
+    @OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Prontuario> prontuarios;
 }

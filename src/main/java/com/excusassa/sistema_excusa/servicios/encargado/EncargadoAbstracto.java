@@ -1,52 +1,28 @@
 package com.excusassa.sistema_excusa.servicios.encargado;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
-import com.excusassa.sistema_excusa.servicios.modotrabajo.IModoTrabajo;
-import com.excusassa.sistema_excusa.servicios.modotrabajo.ModoNormal;
+import com.excusassa.sistema_excusa.dominio.modelo.excusa.Excusa;
+import com.excusassa.sistema_excusa.servicios.modotrabajo.ModoTrabajo;
 import com.excusassa.sistema_excusa.infraestructura.email.EmailSender;
-import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
+import lombok.Getter;
 
 public abstract class EncargadoAbstracto extends Empleado implements IEncargado {
 
     protected IEncargado siguiente;
-    protected IModoTrabajo modoTrabajo;
+    protected ModoTrabajo modoTrabajo;
+    @Getter
     protected EmailSender emailSender;
 
-    public EncargadoAbstracto(String nombre,
-                     String email,
-                     int nroLegajo,
-                     EmailSender emailSender) {
+    public EncargadoAbstracto(String nombre, String email, int nroLegajo,
+                              ModoTrabajo modoTrabajo, EmailSender emailSender) {
         super(nombre, email, nroLegajo);
-        this.modoTrabajo  = new ModoNormal();
-        this.emailSender  = emailSender;
-    }
-
-    public EncargadoAbstracto(String nombre,
-                     String email,
-                     int nroLegajo,
-                     IModoTrabajo modoTrabajo,
-                     EmailSender emailSender) {
-        super(nombre, email, nroLegajo);
-        this.modoTrabajo  = modoTrabajo;
-        this.emailSender  = emailSender;
-    }
-
-    public EmailSender getEmailSender() {
-        return emailSender;
+        this.modoTrabajo = modoTrabajo;
+        this.emailSender = emailSender;
     }
 
     @Override
-    public void manejarExcusa(IExcusa excusa) {
-        if (modoTrabajo.esVago()) {
-            delegarASiguiente(excusa);
-            return;
-        }
-        if (puedeProcesar(excusa)) {
-            procesarExcusaInterna(excusa);
-        } else {
-            modoTrabajo.accionAlDelegar(this, excusa);
-            delegarASiguiente(excusa);
-        }
+    public void manejarExcusa(Excusa excusa) {
+        modoTrabajo.procesar(this, excusa);
     }
 
     @Override
@@ -54,11 +30,11 @@ public abstract class EncargadoAbstracto extends Empleado implements IEncargado 
         this.siguiente = siguiente;
     }
 
-    public void delegarASiguiente(IExcusa excusa) {
+    public void delegarASiguiente(Excusa excusa) {
         siguiente.manejarExcusa(excusa);
     }
 
-    protected void enviarEmailAprobacion(IExcusa excusa, String cuerpoMensaje) {
+    protected void enviarEmailAprobacion(Excusa excusa, String cuerpoMensaje) {
         this.emailSender.enviarEmail(
                 excusa.getEmpleado().getEmail(),
                 this.getEmail(),
@@ -67,7 +43,6 @@ public abstract class EncargadoAbstracto extends Empleado implements IEncargado 
         );
     }
 
-    public abstract boolean puedeProcesar(IExcusa excusa);
-    public abstract void procesarExcusaInterna(IExcusa excusa);
-
+    public abstract boolean puedeProcesar(Excusa excusa);
+    public abstract void procesarExcusaInterna(Excusa excusa);
 }

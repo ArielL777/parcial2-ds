@@ -1,5 +1,6 @@
 package com.excusassa.sistema_excusa.interfaz;
 
+import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.dominio.modelo.prontuario.Prontuario;
 import com.excusassa.sistema_excusa.servicios.prontuario.ProntuarioService;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,5 +34,18 @@ class ProntuarioControllerTest {
         mockMvc.perform(get("/api/prontuarios"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    void alPedirProntuarios_cuandoExisten_deberiaDevolverListaConDatos() throws Exception {
+        Empleado empleadoFalso = new Empleado("Empleado CEO", "ceo@test.com", 999);
+        List<Prontuario> listaFalsa = List.of(new Prontuario(empleadoFalso, "Abducido por aliens", 999, new java.util.Date()));
+
+        when(prontuarioService.obtenerTodos()).thenReturn(listaFalsa);
+
+        mockMvc.perform(get("/api/prontuarios"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].motivoExcusa", is("Abducido por aliens")));
     }
 }

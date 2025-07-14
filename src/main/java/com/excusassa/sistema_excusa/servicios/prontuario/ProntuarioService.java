@@ -1,7 +1,7 @@
 package com.excusassa.sistema_excusa.servicios.prontuario;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
-import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
+import com.excusassa.sistema_excusa.dominio.modelo.excusa.Excusa;
 import com.excusassa.sistema_excusa.dominio.modelo.prontuario.Prontuario;
 import com.excusassa.sistema_excusa.infraestructura.persistencia.ProntuarioRepository;
 import com.excusassa.sistema_excusa.servicios.notificacion.NotificadorCEO;
@@ -21,10 +21,10 @@ public class ProntuarioService {
         this.notificadorCEO = notificadorCEO;
     }
 
-    public void crearYPersistirProntuario(Empleado empleado, IExcusa excusa) {
+    public void crearYPersistirProntuario(Empleado empleado, Excusa excusa) {
         Prontuario prontuario = new Prontuario(
                 empleado,
-                excusa,
+                excusa.getTipo().getMotivo(),
                 empleado.getNroLegajo(),
                 new Date()
         );
