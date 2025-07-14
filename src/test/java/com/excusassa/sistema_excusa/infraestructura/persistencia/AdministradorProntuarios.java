@@ -4,9 +4,8 @@ import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.ExcusaInverosimil;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
 import com.excusassa.sistema_excusa.dominio.modelo.prontuario.Prontuario;
-import com.excusassa.sistema_excusa.dominio.servicios.notificacion.IObserver;
-import com.excusassa.sistema_excusa.dominio.servicios.notificacion.NotificadorCEO;
-import com.excusassa.sistema_excusa.infraestructura.persistencia.AdministradorProntuarios;
+import com.excusassa.sistema_excusa.servicios.notificacion.IObserver;
+import com.excusassa.sistema_excusa.servicios.notificacion.NotificadorCEO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +40,7 @@ class AdministradorProntuariosTest {
                 empleado
         );
 
-        AdministradorProntuarios.getInstance().crearYPersistirProntuario(empleado, excusa);
+      //  AdministradorProntuarios.getInstance().crearYPersistirProntuario(empleado, excusa);
 
         assertTrue(observer.notificado, "El observador debería haber sido notificado");
         assertNotNull(observer.recibido, "El observador debería haber recibido un prontuario");

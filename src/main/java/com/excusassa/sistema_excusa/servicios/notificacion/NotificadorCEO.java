@@ -1,14 +1,14 @@
-package com.excusassa.sistema_excusa.dominio.servicios.notificacion;
+package com.excusassa.sistema_excusa.servicios.notificacion;
 
 import com.excusassa.sistema_excusa.dominio.modelo.prontuario.Prontuario;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// FÍJATE AQUÍ: Esta es la clase que AHORA implementa la interfaz
+@Component
 public class NotificadorCEO implements IObservable {
 
-    // También es un Singleton para tener un único punto de notificación
     private static NotificadorCEO instancia;
     private final List<IObserver> observers;
 
@@ -23,9 +23,6 @@ public class NotificadorCEO implements IObservable {
         return instancia;
     }
 
-    // A partir de aquí, son los métodos que cortamos y pegamos
-    // de la versión vieja de AdministradorProntuarios.
-
     @Override
     public void agregarObserver(IObserver observer) {
         observers.add(observer);
@@ -38,7 +35,6 @@ public class NotificadorCEO implements IObservable {
 
     @Override
     public void notificarObservers(Prontuario prontuario) {
-        // Su única lógica es recorrer la lista de observers y notificarles.
         for (IObserver observer : observers) {
             observer.actualizar(prontuario);
         }

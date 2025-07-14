@@ -1,8 +1,8 @@
-package com.excusassa.sistema_excusa.dominio.servicios.encargado;
+package com.excusassa.sistema_excusa.servicios.encargado;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
-import com.excusassa.sistema_excusa.dominio.servicios.modotrabajo.IModoTrabajo;
-import com.excusassa.sistema_excusa.dominio.servicios.modotrabajo.ModoNormal;
+import com.excusassa.sistema_excusa.servicios.modotrabajo.IModoTrabajo;
+import com.excusassa.sistema_excusa.servicios.modotrabajo.ModoNormal;
 import com.excusassa.sistema_excusa.infraestructura.email.EmailSender;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
 

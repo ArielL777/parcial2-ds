@@ -1,4 +1,4 @@
-package com.excusassa.sistema_excusa.dominio.servicios;
+package com.excusassa.sistema_excusa.servicios.excusa;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.*;

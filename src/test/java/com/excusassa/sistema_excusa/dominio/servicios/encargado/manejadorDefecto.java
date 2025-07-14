@@ -3,7 +3,7 @@ package com.excusassa.sistema_excusa.dominio.servicios.encargado;
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.ExcusaInverosimil;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
-import com.excusassa.sistema_excusa.dominio.servicios.encargado.ManejadorDefecto;
+import com.excusassa.sistema_excusa.servicios.encargado.ManejadorDefecto;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;

@@ -3,9 +3,9 @@ package com.excusassa.sistema_excusa.dominio.servicios.modotrabajo;
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.ExcusaInverosimil;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
-import com.excusassa.sistema_excusa.dominio.servicios.encargado.EncargadoAbstracto;
-import com.excusassa.sistema_excusa.dominio.servicios.encargado.IEncargado;
-import com.excusassa.sistema_excusa.dominio.servicios.modotrabajo.ModoProductivo;
+import com.excusassa.sistema_excusa.servicios.encargado.EncargadoAbstracto;
+import com.excusassa.sistema_excusa.servicios.encargado.IEncargado;
+import com.excusassa.sistema_excusa.servicios.modotrabajo.ModoProductivo;
 import com.excusassa.sistema_excusa.infraestructura.email.EmailSender;
 import org.junit.jupiter.api.Test;
 

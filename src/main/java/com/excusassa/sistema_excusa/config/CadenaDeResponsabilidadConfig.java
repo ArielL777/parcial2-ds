@@ -2,11 +2,13 @@ package com.excusassa.sistema_excusa.config;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.*;
 import com.excusassa.sistema_excusa.infraestructura.email.EmailSender;
-import com.excusassa.sistema_excusa.dominio.servicios.encargado.CadenaEncargados;
-import com.excusassa.sistema_excusa.dominio.servicios.encargado.IEncargado;
-import com.excusassa.sistema_excusa.dominio.servicios.encargado.ManejadorDefecto;
-import com.excusassa.sistema_excusa.dominio.servicios.modotrabajo.IModoTrabajo;
-import com.excusassa.sistema_excusa.dominio.servicios.modotrabajo.ModoNormal;
+import com.excusassa.sistema_excusa.infraestructura.persistencia.ExcusaRepository;
+import com.excusassa.sistema_excusa.servicios.encargado.CadenaEncargados;
+import com.excusassa.sistema_excusa.servicios.encargado.IEncargado;
+import com.excusassa.sistema_excusa.servicios.encargado.ManejadorDefecto;
+import com.excusassa.sistema_excusa.servicios.modotrabajo.IModoTrabajo;
+import com.excusassa.sistema_excusa.servicios.modotrabajo.ModoNormal;
+import com.excusassa.sistema_excusa.servicios.prontuario.ProntuarioService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,9 +27,12 @@ public class CadenaDeResponsabilidadConfig {
     }
 
     @Bean
-    public IEncargado ceo(IModoTrabajo modoNormal, EmailSender emailSender, IEncargado manejadorDefecto) {
-        CEO ceo = new CEO("Lucía (CEO)", "lucia@excusassa.com", 1004, modoNormal, emailSender);
-        ceo.setSiguiente(manejadorDefecto); // Lo enlazamos con el siguiente
+    public IEncargado ceo(IModoTrabajo modoNormal, EmailSender emailSender,
+                          IEncargado manejadorDefecto, ProntuarioService prontuarioService) {
+
+        CEO ceo = new CEO("Lucía (CEO)", "lucia@excusassa.com", 1004, modoNormal, emailSender, prontuarioService);
+
+        ceo.setSiguiente(manejadorDefecto);
         return ceo;
     }
 
@@ -46,7 +51,7 @@ public class CadenaDeResponsabilidadConfig {
     }
 
     @Bean
-    @Qualifier("primerEncargado") // Le ponemos una etiqueta para identificarlo
+    @Qualifier("primerEncargado")
     public IEncargado recepcionista(IModoTrabajo modoNormal, EmailSender emailSender, IEncargado supervisorArea) {
         Recepcionista recepcionista = new Recepcionista("Ana (Recepcionista)", "ana@excusassa.com", 1001, modoNormal, emailSender);
         recepcionista.setSiguiente(supervisorArea);
@@ -54,7 +59,7 @@ public class CadenaDeResponsabilidadConfig {
     }
 
     @Bean
-    public CadenaEncargados cadenaEncargados(@Qualifier("primerEncargado") IEncargado primerEncargado) {
-        return new CadenaEncargados(primerEncargado);
+    public CadenaEncargados cadenaEncargados(@Qualifier("primerEncargado") IEncargado primerEncargado, ExcusaRepository excusaRepository) {
+        return new CadenaEncargados(primerEncargado, excusaRepository);
     }
 }

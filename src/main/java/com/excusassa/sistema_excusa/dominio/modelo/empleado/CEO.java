@@ -1,21 +1,24 @@
 package com.excusassa.sistema_excusa.dominio.modelo.empleado;
 
-import com.excusassa.sistema_excusa.dominio.servicios.encargado.EncargadoAbstracto;
-import com.excusassa.sistema_excusa.infraestructura.persistencia.AdministradorProntuarios;
-import com.excusassa.sistema_excusa.dominio.servicios.notificacion.NotificadorCEO;
+import com.excusassa.sistema_excusa.servicios.encargado.EncargadoAbstracto;
+import com.excusassa.sistema_excusa.servicios.notificacion.NotificadorCEO;
 import com.excusassa.sistema_excusa.infraestructura.email.EmailSender;
-import com.excusassa.sistema_excusa.dominio.servicios.modotrabajo.IModoTrabajo;
+import com.excusassa.sistema_excusa.servicios.modotrabajo.IModoTrabajo;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.IExcusa;
-import com.excusassa.sistema_excusa.dominio.servicios.notificacion.IObserver;
+import com.excusassa.sistema_excusa.servicios.notificacion.IObserver;
 import com.excusassa.sistema_excusa.dominio.modelo.prontuario.Prontuario;
+import com.excusassa.sistema_excusa.servicios.prontuario.ProntuarioService;
 
 
 public class CEO extends EncargadoAbstracto implements IObserver {
 
-    public CEO(String nombre, String email, int nroLegajo,
-               IModoTrabajo modoTrabajo, EmailSender emailSender) {
-        super(nombre, email, nroLegajo, modoTrabajo, emailSender);
+    private final ProntuarioService prontuarioService;
 
+
+    public CEO(String nombre, String email, int nroLegajo,
+               IModoTrabajo modoTrabajo, EmailSender emailSender, ProntuarioService prontuarioService) {
+        super(nombre, email, nroLegajo, modoTrabajo, emailSender);
+        this.prontuarioService = prontuarioService;
         NotificadorCEO.getInstance().agregarObserver(this);
     }
 
@@ -26,10 +29,7 @@ public class CEO extends EncargadoAbstracto implements IObserver {
 
     @Override
     public void procesarExcusaInterna(IExcusa excusa) {
-        AdministradorProntuarios.getInstance().crearYPersistirProntuario(
-                excusa.getEmpleado(),
-                excusa
-        );
+        prontuarioService.crearYPersistirProntuario(excusa.getEmpleado(), excusa);
         enviarEmailAprobacion(excusa, "La excusa fue aceptada por el Gerente de RRHH.");
     }
 
