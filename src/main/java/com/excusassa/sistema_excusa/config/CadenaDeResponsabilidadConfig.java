@@ -1,59 +1,47 @@
 package com.excusassa.sistema_excusa.config;
 
-import com.excusassa.sistema_excusa.dominio.modelo.empleado.*;
+import com.excusassa.sistema_excusa.dominio.modelo.empleado.CEO;
+import com.excusassa.sistema_excusa.dominio.modelo.empleado.GerenteRRHH;
+import com.excusassa.sistema_excusa.dominio.modelo.empleado.Recepcionista;
+import com.excusassa.sistema_excusa.dominio.modelo.empleado.SupervisorArea;
 import com.excusassa.sistema_excusa.infraestructura.email.EmailSender;
-import com.excusassa.sistema_excusa.servicios.modotrabajo.ModoTrabajo;
 import com.excusassa.sistema_excusa.infraestructura.persistencia.ExcusaRepository;
 import com.excusassa.sistema_excusa.servicios.encargado.CadenaEncargados;
+import com.excusassa.sistema_excusa.servicios.encargado.CadenaManager;
 import com.excusassa.sistema_excusa.servicios.encargado.IEncargado;
 import com.excusassa.sistema_excusa.servicios.encargado.ManejadorDefecto;
 import com.excusassa.sistema_excusa.servicios.modotrabajo.ModoTrabajo;
-import com.excusassa.sistema_excusa.servicios.prontuario.ProntuarioService;
 import com.excusassa.sistema_excusa.servicios.notificacion.NotificadorCEO;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.excusassa.sistema_excusa.servicios.prontuario.ProntuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @Configuration
 public class CadenaDeResponsabilidadConfig {
 
     @Bean
-    public IEncargado manejadorDefecto() {
-        return new ManejadorDefecto();
+    public CadenaManager cadenaManager(EmailSender emailSender, ProntuarioService prontuarioService, NotificadorCEO notificadorCEO) {
+        List<IEncargado> encargadosIniciales = new LinkedList<>(List.of(
+                new Recepcionista("Ana", "ana@email.com", 1001, ModoTrabajo.NORMAL, emailSender),
+                new SupervisorArea("Luis", "luis@email.com", 1002, ModoTrabajo.NORMAL, emailSender),
+                new GerenteRRHH("Carlos", "carlos@email.com", 1003, ModoTrabajo.NORMAL, emailSender),
+                crearCeoObservable(emailSender, prontuarioService, notificadorCEO),
+                new ManejadorDefecto()
+        ));
+        return new CadenaManager(encargadosIniciales);
     }
 
-    @Bean
-    public IEncargado ceo(EmailSender emailSender, IEncargado manejadorDefecto, ProntuarioService prontuarioService, NotificadorCEO notificadorCEO) {
-        CEO ceo = new CEO("Lucía (CEO)", "lucia@excusassa.com", 1004, ModoTrabajo.NORMAL, emailSender, prontuarioService);
+    private CEO crearCeoObservable(EmailSender emailSender, ProntuarioService prontuarioService, NotificadorCEO notificadorCEO) {
+        CEO ceo = new CEO("Lucía (CEO)", "lucia@email.com", 1004, ModoTrabajo.NORMAL, emailSender, prontuarioService);
         notificadorCEO.agregarObserver(ceo);
-        ceo.setSiguiente(manejadorDefecto);
         return ceo;
     }
 
     @Bean
-    public IEncargado gerenteRRHH(EmailSender emailSender, IEncargado ceo) {
-        GerenteRRHH gerente = new GerenteRRHH("Carlos (Gerente)", "carlos@excusassa.com", 1003, ModoTrabajo.NORMAL, emailSender);
-        gerente.setSiguiente(ceo);
-        return gerente;
-    }
-
-    @Bean
-    public IEncargado supervisorArea(EmailSender emailSender, IEncargado gerenteRRHH) {
-        SupervisorArea supervisor = new SupervisorArea("Luis (Supervisor)", "luis@excusassa.com", 1002, ModoTrabajo.NORMAL, emailSender);
-        supervisor.setSiguiente(gerenteRRHH);
-        return supervisor;
-    }
-
-    @Bean
-    @Qualifier("primerEncargado")
-    public IEncargado recepcionista(EmailSender emailSender, IEncargado supervisorArea) {
-        Recepcionista recepcionista = new Recepcionista("Ana (Recepcionista)", "ana@excusassa.com", 1001, ModoTrabajo.NORMAL, emailSender);
-        recepcionista.setSiguiente(supervisorArea);
-        return recepcionista;
-    }
-
-    @Bean
-    public CadenaEncargados cadenaEncargados(@Qualifier("primerEncargado") IEncargado primerEncargado, ExcusaRepository excusaRepository) {
-        return new CadenaEncargados(primerEncargado, excusaRepository);
+    public CadenaEncargados cadenaEncargados(CadenaManager cadenaManager, ExcusaRepository excusaRepository) {
+        return new CadenaEncargados(cadenaManager, excusaRepository);
     }
 }

@@ -25,6 +25,7 @@ public class CEO extends EncargadoAbstracto implements IObserver {
 
     @Override
     public void procesarExcusaInterna(Excusa excusa) {
+        excusa.setNombreEncargadoQueProceso(this.getNombre());
         prontuarioService.crearYPersistirProntuario(excusa.getEmpleado(), excusa);
         enviarEmailAprobacion(excusa, "Aprobado por creatividad.");
     }

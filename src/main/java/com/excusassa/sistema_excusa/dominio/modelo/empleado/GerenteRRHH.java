@@ -19,6 +19,7 @@ public class GerenteRRHH extends EncargadoAbstracto {
 
     @Override
     public void procesarExcusaInterna(Excusa excusa) {
+        excusa.setNombreEncargadoQueProceso(this.getNombre());
         enviarEmailAprobacion(excusa, "La excusa fue aceptada por el Gerente de RRHH.");
     }
 }

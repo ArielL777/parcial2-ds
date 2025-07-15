@@ -2,11 +2,16 @@ package com.excusassa.sistema_excusa.interfaz;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.servicios.empleado.EmpleadoService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import com.excusassa.sistema_excusa.interfaz.dto.EmpleadoRequestDTO;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.util.List;
 
@@ -22,6 +27,9 @@ class EmpleadoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockBean
     private EmpleadoService empleadoService;
@@ -40,5 +48,35 @@ class EmpleadoControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].nombre", is("Juan Perez")))
                 .andExpect(jsonPath("$[1].nroLegajo", is(1002)));
+    }
+
+    @Test
+    void alCrearUnEmpleadoValido_deberiaDevolverEmpleadoDTOyStatusCreated() throws Exception {
+
+        EmpleadoRequestDTO requestDTO = new EmpleadoRequestDTO("Nuevo Empleado", "nuevo@email.com", 5555);
+
+        Empleado empleadoGuardado = new Empleado("Nuevo Empleado", "nuevo@email.com", 5555);
+        empleadoGuardado.setId(1);
+
+        when(empleadoService.crearEmpleado(any(EmpleadoRequestDTO.class))).thenReturn(empleadoGuardado);
+
+        mockMvc.perform(post("/api/empleados")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nombre", is("Nuevo Empleado")))
+                .andExpect(jsonPath("$.email", is("nuevo@email.com")));
+    }
+
+    @Test
+    void alCrearUnEmpleadoConNombreVacio_deberiaDevolverBadRequest() throws Exception {
+
+        EmpleadoRequestDTO requestDTOInvalido = new EmpleadoRequestDTO("", "email@valido.com", 5556);
+
+        mockMvc.perform(post("/api/empleados")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDTOInvalido)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.nombre", is("El nombre es obligatorio")));
     }
 }

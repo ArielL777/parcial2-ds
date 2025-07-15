@@ -19,6 +19,7 @@ public class Recepcionista extends EncargadoAbstracto {
 
     @Override
     public void procesarExcusaInterna(Excusa excusa) {
+        excusa.setNombreEncargadoQueProceso(this.getNombre());
         enviarEmailAprobacion(excusa, "La licencia fue aceptada.");
     }
 }

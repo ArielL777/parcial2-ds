@@ -3,13 +3,16 @@ package com.excusassa.sistema_excusa.servicios.excusa;
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.Excusa;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.ExcusaFactory;
+import com.excusassa.sistema_excusa.dominio.modelo.excusa.enums.EstadoExcusa;
+import com.excusassa.sistema_excusa.dominio.modelo.excusa.enums.TipoExcusa;
 import com.excusassa.sistema_excusa.infraestructura.excepciones.RecursoNoEncontradoException;
 import com.excusassa.sistema_excusa.infraestructura.persistencia.EmpleadoRepository;
 import com.excusassa.sistema_excusa.interfaz.dto.ExcusaRequestDTO;
 import com.excusassa.sistema_excusa.servicios.encargado.CadenaEncargados;
 import com.excusassa.sistema_excusa.infraestructura.persistencia.ExcusaRepository;
-import org.apache.coyote.BadRequestException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import java.util.Date;
 
 import java.util.List;
 
@@ -44,12 +47,25 @@ public class ExcusaService {
         return excusa;
     }
 
-    public List<Excusa> obtenerTodas() {
-        return excusaRepository.findAll();
+    public List<Excusa> obtenerExcusasRechazadas() {
+        return excusaRepository.findByEstado(EstadoExcusa.RECHAZADA);
+    }
+
+    @Transactional
+    public int eliminarExcusasAntiguas(Date fechaLimite) {
+        return excusaRepository.deleteByFechaBefore(fechaLimite);
+    }
+
+    public List<Excusa> obtenerTodas(String motivo, String encargado, Date fechaDesde, Date fechaHasta) {
+        TipoExcusa tipo = (motivo != null && !motivo.isEmpty()) ? TipoExcusa.fromString(motivo) : null;
+        return excusaRepository.buscarConFiltros(tipo, encargado, fechaDesde, fechaHasta);
     }
 
     public List<Excusa> obtenerPorLegajo(Integer legajo) {
         return excusaRepository.findByEmpleadoNroLegajo(legajo);
     }
 
+    public List<Excusa> buscarPorLegajoYFechas(Integer legajo, Date fechaDesde, Date fechaHasta) {
+        return excusaRepository.findByEmpleadoNroLegajoAndFechaBetween(legajo, fechaDesde, fechaHasta);
+    }
 }

@@ -21,6 +21,7 @@ public class SupervisorArea extends EncargadoAbstracto {
     public void procesarExcusaInterna(Excusa excusa) {
         switch (excusa.getTipo()) {
             case CORTE_LUZ:
+                excusa.setNombreEncargadoQueProceso(this.getNombre());
                 emailSender.enviarEmail(
                         "EDESUR@mailfake.com.ar",
                         this.getEmail(),
@@ -30,9 +31,11 @@ public class SupervisorArea extends EncargadoAbstracto {
                 );
                 break;
             case CUIDADO_FAMILIAR:
+                excusa.setNombreEncargadoQueProceso(this.getNombre());
                 enviarEmailAprobacion(excusa, "Hemos recibido tu justificativo por cuidado de un familiar. Esperamos que esté todo bien.");
                 break;
             default:
+                excusa.setNombreEncargadoQueProceso(this.getNombre());
                 enviarEmailAprobacion(excusa, "Tu excusa ha sido recibida por tu supervisor.");
                 break;
         }

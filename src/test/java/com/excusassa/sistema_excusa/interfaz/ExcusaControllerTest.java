@@ -2,6 +2,7 @@ package com.excusassa.sistema_excusa.interfaz;
 
 import com.excusassa.sistema_excusa.dominio.modelo.empleado.Empleado;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.Excusa;
+import com.excusassa.sistema_excusa.dominio.modelo.excusa.enums.EstadoExcusa;
 import com.excusassa.sistema_excusa.dominio.modelo.excusa.enums.TipoExcusa;
 import com.excusassa.sistema_excusa.infraestructura.excepciones.RecursoNoEncontradoException;
 import com.excusassa.sistema_excusa.interfaz.dto.ExcusaRequestDTO;
@@ -14,15 +15,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 @WebMvcTest(ExcusaController.class)
 class ExcusaControllerTest {
@@ -109,7 +113,7 @@ class ExcusaControllerTest {
         Empleado empleadoFalso = new Empleado("Test", "test@test.com", 1001);
         List<Excusa> listaFalsa = List.of(new Excusa(TipoExcusa.CORTE_LUZ, "Sin luz", empleadoFalso));
 
-        when(excusaService.obtenerTodas()).thenReturn(listaFalsa);
+        when(excusaService.obtenerTodas(null, null, null, null)).thenReturn(listaFalsa);
 
         mockMvc.perform(get("/api/excusas"))
                 .andExpect(status().isOk())
@@ -127,6 +131,81 @@ class ExcusaControllerTest {
         when(excusaService.obtenerPorLegajo(legajoBuscado)).thenReturn(listaFalsa);
 
         mockMvc.perform(get("/api/excusas/{legajo}", legajoBuscado))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].empleado.nroLegajo", is(legajoBuscado)));
+    }
+
+    @Test
+    void alPedirExcusasConFiltroPorMotivo_deberiaDevolverListaFiltrada() throws Exception {
+
+        Empleado empleadoFalso = new Empleado("Test", "test@test.com", 1001);
+        String motivoBuscado = "me quedé dormido";
+
+        List<Excusa> listaFiltrada = List.of(
+                new Excusa(TipoExcusa.ME_QUEDE_DORMIDO, "No sonó la alarma", empleadoFalso)
+        );
+
+        when(excusaService.obtenerTodas(motivoBuscado, null, null, null))
+                .thenReturn(listaFiltrada);
+
+        mockMvc.perform(get("/api/excusas")
+                        .param("motivo", motivoBuscado))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].tipo", is("ME_QUEDE_DORMIDO")));
+    }
+
+    @Test
+    void alEliminarExcusas_deberiaLlamarAlServicioYDevolverRespuestaCorrecta() throws Exception {
+
+        String fechaLimite = "2025-01-01";
+
+        int cantidadBorradas = 5;
+
+        when(excusaService.eliminarExcusasAntiguas(any(Date.class)))
+                .thenReturn(cantidadBorradas);
+
+        mockMvc.perform(delete("/api/excusas/eliminar")
+                        .param("fechaLimite", fechaLimite))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensaje", is("Operación de borrado completada.")))
+                .andExpect(jsonPath("$.excusasEliminadas", is(5)));
+    }
+
+    @Test
+    void alPedirExcusasRechazadas_deberiaDevolverListaCorrecta() throws Exception {
+
+        Empleado empleadoFalso = new Empleado("Test", "test@test.com", 1001);
+        Excusa excusaRechazada = new Excusa(TipoExcusa.INVEROSIMIL, "Motivo rechazado", empleadoFalso);
+        excusaRechazada.setEstado(EstadoExcusa.RECHAZADA);
+
+        List<Excusa> listaFalsa = List.of(excusaRechazada);
+
+        when(excusaService.obtenerExcusasRechazadas()).thenReturn(listaFalsa);
+
+        mockMvc.perform(get("/api/excusas/rechazadas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].estado", is("RECHAZADA")));
+    }
+
+    @Test
+    void alBuscarPorLegajoYFechas_deberiaDevolverListaFiltrada() throws Exception {
+        Integer legajoBuscado = 123;
+        String fechaDesdeStr = "2025-07-01";
+        String fechaHastaStr = "2025-07-31";
+
+        Empleado empleadoFalso = new Empleado("Empleado Filtrado", "filtrado@test.com", legajoBuscado);
+        List<Excusa> listaFiltrada = List.of(new Excusa(TipoExcusa.CORTE_LUZ, "Excusa en fecha", empleadoFalso));
+
+        when(excusaService.buscarPorLegajoYFechas(eq(legajoBuscado), any(Date.class), any(Date.class)))
+                .thenReturn(listaFiltrada);
+
+        mockMvc.perform(get("/api/excusas/busqueda")
+                        .param("legajo", legajoBuscado.toString())
+                        .param("fechaDesde", fechaDesdeStr)
+                        .param("fechaHasta", fechaHastaStr))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].empleado.nroLegajo", is(legajoBuscado)));
