@@ -20,17 +20,15 @@ Se realizaron las siguientes correcciones y mejoras sobre la base del Parcial 1:
 * El patrón `Template Method` fue movido a `EncargadoAbstracto`, ahora los `ModoTrabajo` actuan como hooks.
 * Se corrigió el `ModoProductivo` para que envíe el email al CTO siempre que delega una excusa, independientemente de si podría procesarla o no.
 * Se eliminó la clase `GestorExcusas`, ya que era una capa de abstracción innecesaria.
-<<<<<<< Updated upstream
 * La responsabilidad de `AdministradorProntuarios` fue dividida en dos clases (`AdministradorProntuarios` para persistencia y `NotificadorCEO` para notificaciones) para evitar la doble responsabilidad.
 =======
 * La responsabilidad de `AdministradorProntuarios` fue dividida en dos clases (`AdministradorProntuarios` para persistencia y `NotificadorCEO` para notificaciones) para evitar la doble responsabilidad.
 
 ### Diagrama de Arquitectura
-![Diagrama de Arquitectura](./docs/diagrams/diagrama-arquitectura.png)
-
-### Diagrama de Clases
-![Diagrama de Clases](./docs/diagrams/diagrama-clases.png)
+![Diagrama de Arquitectura](./docs/diagrams/diagrama-de-arquitectura.png)
 
 ### Diagrama de Casos de Uso
-![Diagrama de Casos de Uso](./docs/diagrams/diagrama-casos-de-uso.png)
->>>>>>> Stashed changes
+![Diagrama de Casos de Uso](./docs/diagrams/diagrama-de-casos-de-uso.png)
+
+### Diagrama de Clases
+![Diagrama de Clases](./docs/diagrams/diagrama-de-clases.png)
